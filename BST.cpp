@@ -1,211 +1,113 @@
-#include <iostream>
-#include <queue>
+#include<iostream>
+#include<string.h>
+
 using namespace std;
 
+struct node{
+	string label;
+	int ch_count;
+	
+	struct node* child[10];
+	
+}*root;
 
-template <typename T>
-class Node {
-public:
-   
-    T data;  
-   
-    Node* left;  
-    Node* right;  
+class GT{
 
-    
-    Node(T value) : data(value), left(nullptr), right(nullptr) {}
+	public:
+		GT(){
+			root = NULL;
+		}
+		
+		string lbel;
+		int count;
+		
+		void create(){
+				root = new node;
+				
+				cout<<"Name of the book:\t";
+				cin>>root->label;
+				cout<<"Number of chapters:\t";
+				cin>>root->ch_count;
+				
+				for(int i=0;i<root->ch_count;i++){
+				
+					root->child[i] = new node;
+					cout<<"Name of chapter "<< i+1 <<":\t";
+					cin>>root->child[i]->label;
+					cout<<"Number of sections:\t";
+					cin>>root->child[i]->ch_count;
+
+					for(int j=0;j<root->child[i]->ch_count;j++){
+						root->child[i]->child[j] = new node;
+						cout<<"Name of section "<< i+1 <<" - "<< j+1<< ":\t";
+						cin>>root->child[i]->child[j]->label;
+						cout<<"Number of sub-sections:\t";
+						cin>>root->child[i]->child[j]->ch_count;
+						
+						for(int k=0;k<root->child[i]->child[j]->ch_count;k++){
+							root->child[i]->child[j]->child[k] = new node;
+							cout<<"Name of sub-section "<< i+1 <<" - "<< j+1<< " - "<< k+1<< ":\t";
+							cin>>root->child[i]->child[j]->label;
+
+						}
+					}
+				}
+		} 
+		
+		void display(node * r){
+				cout<<endl<<"Name of book:\t";
+				cout<<root->label<<endl;
+				cout<<endl<<"Number of chapters:\t";
+				cout<<root->ch_count<<endl;
+			
+				for(int i=0;i<root->ch_count;i++){
+						cout<<endl<<"Name of chapter:\t";
+						cout<<root->child[i]->label<<endl;
+						cout<<endl<<"Number of sections:\t";
+						cout<<root->child[i]->ch_count<<endl;
+
+						for(int j=0;j<root->child[i]->ch_count;j++){
+							cout<<"\t\t"<< i+1 <<" - "<< j+1<< " Name of sections: ";
+							cout<<root->child[i]->child[j]->label<<endl;
+							cout<<"\t\tNumber of sub-section: ";
+							cout<<root->child[i]->child[j]->ch_count<<endl;
+							
+							for(int k=0;k<root->child[i]->child[j]->ch_count;k++){
+								cout<<"\t\t\t"<< i+1 <<" - "<< j+1<< " - "<< k+1<< " Name of sub-section: ";
+								cout<<root->child[i]->child[j]->label<<endl;
+							}
+						}
+			}
+		}
 };
 
 
-template <typename T>
-class BinaryTree {
-private:
-    
-    Node<T>* root;  
+int main(){
+	GT g;
+	
+	while(1){
+		cout<<"--- MAIN MENU ---"<<endl;
+		cout<<"1 -> Add book info"<<endl;
+		cout<<"2 -> Display info"<<endl;
+		cout<<"3 ->Exit"<<endl;
+		cout<<"Choose an option (1-3):\t";
+		int ch;
+		cin>>ch;
 
-   
-    Node<T>* deleteRecursive(Node<T>* current, T value) {
-        if (current == nullptr) return nullptr;
-
-        if (current->data == value) {
-            if (current->left == nullptr && current->right == nullptr) {
-                delete current;
-                return nullptr;
-            }
-            if (current->left == nullptr) {
-                Node<T>* temp = current->right;
-                delete current;
-                return temp;
-            }
-            if (current->right == nullptr) {
-                Node<T>* temp = current->left;
-                delete current;
-                return temp;
-            }
-
-            Node<T>* successor = findMin(current->right);
-            current->data = successor->data;
-            current->right = deleteRecursive(current->right, successor->data);
-        } else {
-            current->left = deleteRecursive(current->left, value);
-            current->right = deleteRecursive(current->right, value);
-        }
-        return current;
-    }
-
-    
-    Node<T>* findMin(Node<T>* node) {
-        while (node->left != nullptr) node = node->left;
-        return node;
-    }
-
-   
-    bool searchRecursive(Node<T>* current, T value) {
-        if (current == nullptr) return false;
-        if (current->data == value) return true;
-        return searchRecursive(current->left, value) || searchRecursive(current->right, value);
-    }
-
-    
-    void inorderRecursive(Node<T>* node) {
-        if (node != nullptr) {
-            inorderRecursive(node->left);
-            cout << node->data << " ";
-            inorderRecursive(node->right);
-        }
-    }
-
-    
-    void preorderRecursive(Node<T>* node) {
-        if (node != nullptr) {
-            cout << node->data << " ";
-            preorderRecursive(node->left);
-            preorderRecursive(node->right);
-        }
-    }
-
-    
-    void postorderRecursive(Node<T>* node) {
-        if (node != nullptr) {
-            postorderRecursive(node->left);
-            postorderRecursive(node->right);
-            cout << node->data << " ";
-        }
-    }
-
-public:
-  
-    BinaryTree() : root(nullptr) {}
-
-   
-    void insertNode(T value) {
-        Node<T>* newNode = new Node<T>(value);
-
-        if (root == nullptr) {
-            root = newNode;
-            return;
-        }
-
-        queue<Node<T>*> q;
-        q.push(root);
-
-        while (!q.empty()) {
-            Node<T>* current = q.front();
-            q.pop();
-
-            if (current->left == nullptr) {
-                current->left = newNode;
-                return;
-            } else {
-                q.push(current->left);
-            }
-
-            if (current->right == nullptr) {
-                current->right = newNode;
-                return;
-            } else {
-                q.push(current->right);
-            }
-        }
-    }
-
-    
-    void deleteNode(T value) {
-        root = deleteRecursive(root, value);
-    }
-
-    
-    bool search(T value) {
-        return searchRecursive(root, value);
-    }
-
-    
-    void inorder() {
-        inorderRecursive(root);
-        cout << endl;
-    }
-
-    
-    void preorder() {
-        preorderRecursive(root);
-        cout << endl;
-    }
-
-   
-    void postorder() {
-        postorderRecursive(root);
-        cout << endl;
-    }
-
-    
-    void levelOrder() {
-        if (root == nullptr) return;
-
-        queue<Node<T>*> q;
-        q.push(root);
-
-        while (!q.empty()) {
-            Node<T>* current = q.front();
-            q.pop();
-
-            cout << current->data << " ";
-
-            if (current->left != nullptr) q.push(current->left);
-            if (current->right != nullptr) q.push(current->right);
-        }
-        cout << endl;
-    }
-};
-
-int main() {
-    BinaryTree<int> tree;
-    
-  
-    tree.insertNode(1);
-    tree.insertNode(2);
-    tree.insertNode(3);
-    tree.insertNode(4);
-    tree.insertNode(5);
-    tree.insertNode(6);
-
-    cout << "Inorder traversal: ";
-    tree.inorder();
-
-    cout << "Preorder traversal: ";
-    tree.preorder();
-
-    cout << "Postorder traversal: ";
-    tree.postorder();
-
-    cout << "Level order traversal: ";
-    tree.levelOrder();
-
-    cout << "Searching for 7: " << (tree.search(7) ? "Found" : "Not Found") << endl;
-    cout << "Searching for 6: " << (tree.search(6) ? "Found" : "Not Found") << endl;
-
-    tree.deleteNode(3);
-    cout << "Inorder traversal after removing 3: ";
-    tree.inorder();
-
-    return 0;
+		switch(ch){
+			case 1:
+				g.create();
+				break;
+			case 2:
+				g.display(root);
+				break;
+			case 3:
+			 	cout<<endl<<"// END OF CODE\n\n";
+				exit(0);
+				break;
+			default:
+				cout<<"Please choose a valid option (1-3).";
+				break;
+		}
+	}
 }
